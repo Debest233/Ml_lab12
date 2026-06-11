@@ -3,38 +3,75 @@
 ---
 
 ## Cel ćwiczenia
-Praktyczne zapoznanie się z architekturą Business Intelligence (BI). Przeprowadzono proces zasilenia hurtowni danych (PostgreSQL), podłączenia silnika analitycznego (Metabase) oraz konstrukcji interaktywnego dashboardu.
 
-## Zadanie 1 i 2: Środowisko i załadowanie danych
-Środowisko zostało uruchomione z wykorzystaniem `docker-compose`, który orkiestrował dwa kontenery:
-1. `postgres:16` - pełniący rolę analitycznej bazy danych.
-2. `metabase/metabase:latest` - serwer aplikacji BI.
+Celem laboratorium było praktyczne poznanie podstaw Business Intelligence, czyli sposobu analizowania danych i przedstawiania ich w czytelnej formie. W ramach ćwiczenia uruchomiono bazę danych PostgreSQL, podłączono do niej narzędzie Metabase oraz przygotowano interaktywny dashboard z wykresami i tabelami.
 
-Dane zostały wygenerowane i załadowane z poziomu języka Python z użyciem bibliotek `pandas` oraz `sqlalchemy`. Połączenie z Metabase zrealizowano przez wewnętrzną sieć Dockera, wskazując host `postgres`.
+## Zadanie 1 i 2: Przygotowanie środowiska i załadowanie danych
+
+Środowisko zostało uruchomione za pomocą `docker-compose`. Dzięki temu można było łatwo uruchomić dwa kontenery:
+
+1. `postgres:16` – baza danych, w której przechowywane były dane do analizy.
+2. `metabase/metabase:latest` – aplikacja Metabase, czyli narzędzie do tworzenia analiz i dashboardów.
+
+Dane zostały wygenerowane i załadowane do bazy za pomocą skryptu w Pythonie. Wykorzystano do tego biblioteki `pandas` oraz `sqlalchemy`. Następnie Metabase zostało połączone z bazą PostgreSQL przez sieć Dockera. Jako host bazy wskazano `postgres`, ponieważ tak nazywał się kontener z bazą danych.
 
 ## Zadanie 3: Analiza wizualizacji i pytania
-Utworzono cztery pytania odpowiadające różnym potrzebom biznesowym:
-1. **Zestawienie tabelaryczne (GUI):** Najlepsze do podglądu danych surowych i analizy pojedynczych rekordów transakcji.
-2. **Wykres słupkowy (Agregacja kategorii):** Idealny do porównywania dyskretnych wartości. Szybko obrazuje, która kategoria generuje największy przychód.
-3. **Tabela SQL (Zapytanie natywne):** Zaawansowana agregacja napisana w czystym SQL, wyliczająca liczbę zdarzeń i przychód.
-4. **Wykres liniowy (Trend w czasie na 5.0):** Najlepszy wybór do pokazywania danych ciągłych (szeregów czasowych). Pozwala szybko wychwycić piki sprzedażowe w poszczególnych tygodniach. 
 
-## Zadanie 4: Interaktywny Dashboard
-Skonstruowano panel menedżerski. Kluczowe trendy i agregacje umieszczono na górze, a szczegółowe tabele na dole. Zaimplementowano globalny filtr zakresu dat, który zlinkowano z każdą kartą na pulpicie, co pozwala na dynamiczną analizę wybranego okresu.
+W Metabase utworzono cztery pytania, które pokazują dane w różnych formach:
+
+1. **Tabela utworzona przez GUI**
+   Tabela dobrze nadaje się do podglądu surowych danych. Można dzięki niej sprawdzić pojedyncze rekordy i zobaczyć, jak wyglądają dane w bazie.
+
+2. **Wykres słupkowy**
+   Wykres słupkowy jest przydatny do porównywania wartości między kategoriami. Dzięki niemu można szybko zobaczyć, która kategoria przynosi największy przychód.
+
+3. **Tabela SQL**
+   W tym przypadku użyto własnego zapytania SQL. Pozwoliło ono policzyć liczbę zdarzeń oraz sumę przychodów. Jest to bardziej zaawansowany sposób analizy danych.
+
+4. **Wykres liniowy**
+   Wykres liniowy najlepiej sprawdza się przy analizie zmian w czasie. Pozwala zobaczyć, jak sprzedaż zmieniała się w kolejnych tygodniach oraz w których momentach pojawiły się większe wzrosty.
+
+## Zadanie 4: Interaktywny dashboard
+
+W ramach zadania przygotowano dashboard w Metabase. Najważniejsze wykresy i podsumowania zostały umieszczone na górze, a bardziej szczegółowe tabele na dole. Dzięki temu pulpit jest czytelny i łatwo można zacząć analizę od najważniejszych informacji.
+
+Dodano również globalny filtr zakresu dat. Filtr został połączony z kartami znajdującymi się na dashboardzie, dlatego po zmianie dat automatycznie aktualizują się wszystkie wykresy i tabele. Pozwala to analizować dane dla wybranego okresu.
 
 **Zrzut ekranu gotowego pulpitu:**
+
 ![Dashboard Metabase1](dashboard1.png)
 ![Dashboard Metabase2](dashboard2.png)
 
 ## Zadanie 5: Zagadnienia teoretyczne i wskaźniki KPI
 
-Jako wskaźnik biznesowy (KPI) zdefiniowano "Sumę przychodów" (Total Amount), a przygotowana analiza wykazała, jak zmienia się sprzedaż w kolejnych tygodniach na wykresie liniowym.
+Jako główny wskaźnik biznesowy KPI wybrano **sumę przychodów**. Jest to prosty i ważny wskaźnik, ponieważ pokazuje, jaką wartość sprzedaży uzyskano w danym okresie. Na wykresie liniowym można było sprawdzić, jak przychody zmieniały się w kolejnych tygodniach.
 
-**Różnice pojęciowe i architektoniczne:**
-* **Przetwarzanie danych a warstwa BI:** Przetwarzanie (np. analizowane wcześniej skrypty w Apache Spark) to przygotowanie danych: czyszczenie, transformacje, konwersje formatów. Warstwa BI (Metabase) to wizualny "front-end" dla biznesu, który tylko odczytuje gotowe dane, nie zmieniając ich struktury w samej bazie.
-* **Dashboard a raport statyczny:** Raport statyczny (np. PDF) pokazuje stan danych na konkretny moment w przeszłości i jest płaski. Dashboard pozwala na interakcję, filtrowanie w locie i ukazuje aktualny stan bazy danych.
-* **Zapytanie ad-hoc a zdefiniowany wskaźnik (KPI):** Zapytanie ad-hoc to jednorazowa analityka (np. sprawdzenie spadku sprzedaży w konkretny wtorek z powodu awarii). KPI to stale mierzony, powtarzalny wskaźnik kluczowy dla firmy, który na stałe znajduje się na pulpicie menedżerskim.
+### Różnice pojęciowe i architektoniczne
 
-### Porównanie Metabase z Apache Superset 
-* **Metabase** jest narzędziem niezwykle przyjaznym dla użytkowników. Jest idealny do szybkiego wdrażania dashboardów w zespołach bez zaawansowanych inżynierów danych.
-* **Apache Superset** to rozbudowane narzędzie optymalizowane pod ogromne zbiory danych i bazy. Oferuje więcej skomplikowanych wizualizacji, ale wymaga lepszej znajomości języka SQL i inżynierii danych, przez co częściej używane jest w środowiskach typu Enterprise.
+**Przetwarzanie danych a warstwa BI**
+
+Przetwarzanie danych polega na ich przygotowaniu, na przykład czyszczeniu, zmianie formatu, łączeniu tabel albo wykonywaniu obliczeń. Takie rzeczy można robić na przykład w Pythonie albo Apache Spark.
+
+Warstwa BI, czyli w tym przypadku Metabase, służy głównie do prezentowania gotowych danych. Metabase nie służy do zaawansowanego przetwarzania danych, tylko do tworzenia wykresów, tabel, dashboardów i filtrów, które pomagają lepiej zrozumieć dane.
+
+**Dashboard a raport statyczny**
+
+Raport statyczny, na przykład plik PDF, pokazuje dane z jednego konkretnego momentu. Nie można go łatwo filtrować ani zmieniać bez przygotowania nowej wersji raportu.
+
+Dashboard jest bardziej elastyczny. Można na nim zmieniać filtry, wybierać zakres dat i od razu obserwować zmiany na wykresach. Dzięki temu dashboard jest wygodniejszy do bieżącej analizy danych.
+
+**Zapytanie ad-hoc a KPI**
+
+Zapytanie ad-hoc to jednorazowe pytanie do danych. Można je wykonać, gdy chcemy szybko sprawdzić konkretną rzecz, na przykład sprzedaż w wybranym dniu.
+
+KPI to stały wskaźnik, który jest regularnie obserwowany. Przykładem KPI może być suma przychodów, liczba zamówień albo średnia wartość sprzedaży. Takie wskaźniki często umieszcza się na dashboardach, ponieważ pomagają ocenić sytuację firmy.
+
+### Porównanie Metabase z Apache Superset
+
+**Metabase** jest prostsze i bardziej przyjazne dla użytkownika. Łatwo można w nim tworzyć podstawowe wykresy, tabele i dashboardy bez bardzo dobrej znajomości SQL. Dobrze sprawdza się w mniejszych projektach oraz tam, gdzie użytkownicy chcą szybko analizować dane.
+
+**Apache Superset** jest bardziej rozbudowanym narzędziem. Oferuje więcej możliwości i lepiej nadaje się do większych środowisk oraz bardziej zaawansowanych analiz. Wymaga jednak większej wiedzy technicznej, szczególnie z zakresu SQL i pracy z dużymi zbiorami danych.
+
+## Wnioski
+
+Podczas laboratorium udało się uruchomić środowisko BI z wykorzystaniem PostgreSQL i Metabase. Dane zostały poprawnie załadowane do bazy, a następnie przedstawione w formie tabel i wykresów. Przygotowany dashboard pozwala szybko analizować sprzedaż oraz korzystać z filtrów dat. Ćwiczenie pokazało, że narzędzia BI są bardzo przydatne do prezentowania danych w czytelnej i interaktywnej formie.
